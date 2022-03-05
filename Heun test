@@ -1,0 +1,34 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+#vectq = vecteur position de Jupiter [qX, qY]
+#vectp = vecteur impulsion de Jupiter avec p = m*dq/dt  [pX, pY]
+vectq = [1,1]   #?
+vectp = [1,1]   #?
+
+
+k = 1 #pas de temps
+mass1 = 1.898*1e27 #masse de Jupiter
+mass2 =1.989*1e30  #masse du Soleil
+dist = 1   # ?     #Distance Soleil-Jupiter !!variable!!
+
+def dq(vectq, vectp, mass1):
+    qdot = vectp/mass1
+    return qdot
+    
+def dp(vectq, vectp, mass1, mass2, dist):
+    pdot = (6.67*1e-11*mass1*mass2)/dist**2
+    return pdot
+
+#Heun
+kdq = k*dq(vectq, vectp, mass1)
+kdp = k*dp(vectq, vectp, mass1, mass2, dist)
+
+qtilde = vectq + kdq
+ptilde = vectp + kdp
+
+q_heun2 = k*dq(qtilde, ptilde, mass1)
+p_heun2 = k*dp(qtilde, ptilde, mass1, mass2, dist)
+
+q_final = vectq + 0.5*kdq + 0.5*q_heun2
+p_final = vectp + 0.5*kdp + 0.5*p_heun2
