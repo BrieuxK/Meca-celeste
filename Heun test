@@ -3,32 +3,46 @@ import matplotlib.pyplot as plt
 
 #vectq = vecteur position de Jupiter [qX, qY]
 #vectp = vecteur impulsion de Jupiter avec p = m*dq/dt  [pX, pY]
-vectq = [1,1]   #?
-vectp = [1,1]   #?
+vectq = [1,1]   #? Plusieurs positions en fction du temps ?[[1,1],[2,2]]
+vectp = [1,1]   #? Idem
 
 
 k = 1 #pas de temps
-mass1 = 1.898*1e27 #masse de Jupiter
-mass2 =1.989*1e30  #masse du Soleil
+mass1 = 1.898*1e27 #masse de Jupiter Kg
+mass2 =1.989*1e30  #masse du Soleil  Kg
 dist = 1   # ?     #Distance Soleil-Jupiter !!variable!!
+position = [1,1]   #coord x,y de Jupiter => Miriade.com ?
 
-def dq(vectq, vectp, mass1):
+def dq(vectq, vectp):
     qdot = vectp/mass1
     return qdot
     
-def dp(vectq, vectp, mass1, mass2, dist):
-    pdot = (6.67*1e-11*mass1*mass2)/dist**2
+def dp(vectq, vectp, dist):
+    pdot = (6.67*1e-11*mass1*mass2)/dist(position)**2
     return pdot
 
+def dist(position):
+    distance = np.sqrt(position[0]**2 + position[1]**2)
+    return distance
+
 #Heun
-kdq = k*dq(vectq, vectp, mass1)
-kdp = k*dp(vectq, vectp, mass1, mass2, dist)
+kdq = k*dq(vectq, vectp)
+kdp = k*dp(vectq, vectp, dist)
 
 qtilde = vectq + kdq
 ptilde = vectp + kdp
 
-q_heun2 = k*dq(qtilde, ptilde, mass1)
-p_heun2 = k*dp(qtilde, ptilde, mass1, mass2, dist)
-
+q_heun2 = k*dq(qtilde, ptilde)
+p_heun2 = k*dp(qtilde, ptilde, dist)
+#On doit faire une itération je suppose
+#Donc les 2 lignes finales dans une boucle, sûrement sur le nbr de pas de temps 
 q_final = vectq + 0.5*kdq + 0.5*q_heun2
 p_final = vectp + 0.5*kdp + 0.5*p_heun2
+
+
+
+#Størmer-Verlet
+p_p = vectp - 0.5 * k * dq(vectq, vectp)
+#Itération ?
+q_SV = vectq + k * dp(qtilde, p_p, dist)
+p_SV = p_p - k * 0.5 *dq(q_SV,p_p)
