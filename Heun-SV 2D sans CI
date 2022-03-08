@@ -1,3 +1,73 @@
+#------------------------------------------------------------------------------------------------------------------------
+#Deuxième version 8/03
+#Heun/SV 2D Jupiter/Soleil, rajout des itérations + remaniements variables pour clarté
+# Manque conditions initiales !
+#------------------------------------------------------------------------------------------------------------------------
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+#vectq = vecteur position de Jupiter [qX, qY]
+#vectp = vecteur impulsion de Jupiter avec p = m*dq/dt  [pX, pY]
+vectq = [1,1]   #? Plusieurs positions ?[[1,1],[2,2]]
+vectp = [1,1]   #? 
+
+k = 1 #pas de temps
+n_k = 100 #nbr de pas de temps
+mass1 = 1.898*1e27 #masse de Jupiter Kg
+mass2 =1.989*1e30  #masse du Soleil  Kg
+dist = 1   # ?     #Distance Soleil-Jupiter !!variable!!
+position = [1,1]   #coord x,y de Jupiter => Miriade.com ?
+
+def dq(vectq, vectp):
+    qdot = vectp/mass1
+    return qdot
+    
+def dp(vectq, vectp, dist):
+    pdot = (6.67*1e-11*mass1*mass2)/dist(position)**2
+    return pdot
+
+def dist(position):
+    distance = np.sqrt(position[0]**2 + position[1]**2)
+    return distance
+
+#Heun--------------------------------------
+q_Heun = np.zeros((2,n_k)) #2 lignes pour x,y
+p_Heun = np.zeros((2,n_k))
+q_Heun[:,0] = vectq #Condition initiale
+p_Heun[:,0] = vectp #CI
+
+kdq = k*dq(vectq, vectp)
+kdp = k*dp(vectq, vectp, dist)
+
+qtilde = vectq + kdq
+ptilde = vectp + kdp
+
+q_heun2 = k*dq(qtilde, ptilde)
+p_heun2 = k*dp(qtilde, ptilde, dist)
+
+for i in range(n_k-1):
+    q_Heun[:,i+1] = q_Heun[:,i] + 0.5*kdq + 0.5*q_heun2
+    p_Heun[:,i+1] = p_Heun[:,i] + 0.5*kdp + 0.5*p_heun2
+
+#Størmer-Verlet-------------------------------
+
+qsv = np.zeros((2,n_k))
+psv = np.zeros((2,n_k))
+qsv[:,0] = vectq #CI
+psv[:,0] = vectp #CI
+
+for i in range(n_k-1):
+    p_p = psv[:,i] - 0.5 * k * dq(qsv[:,i], psv[:,i])
+    qsv[:,i+1] = qsv[:,i] + k * dp(qsv[:,i], p_p, dist)
+    psv[:,i+1] = p_p - k * 0.5 *dq(qsv[:,i+1],p_p)
+
+
+#------------------------------------------------------------------------------------------------------------------------
+#Première version 7/03
+#Heun/SV 2D Jupiter/Soleil
+#Pas d'itérations
+#------------------------------------------------------------------------------------------------------------------------
 import numpy as np
 import matplotlib.pyplot as plt
 
