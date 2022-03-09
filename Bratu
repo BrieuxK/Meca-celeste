@@ -1,0 +1,50 @@
+#----------------------------------------------------------------------------------------------------
+#Eq de Bratu, mais incorrect, solution qui diverge alors qu'elle doit converger
+#----------------------------------------------------------------------------------------------------
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+#Résulats divergent avec les itérations vers une forme incorrect
+
+N = 10
+x = np.linspace(0,1,N+2)
+xbis = x[1:-1]
+Nit = 25    #nbr d'itérations
+h = x[1]-x[0]
+y0 = (xbis-xbis**2)
+Y = np.zeros((N,Nit))
+
+def Fk(arr, h):
+    F = np.zeros(arr.size)
+    F[0]=arr[1]-2*arr[0]+(h**2)*np.exp(arr[0])          
+    F[-1]=-2*arr[-1]+arr[-2]+(h**2)*np.exp(arr[-1])
+    
+
+
+
+F = np.zeros(N)
+F[0] = xbis[1] -2*xbis[0] +h**2*np.exp(xbis[0])
+F[-1] = -2*xbis[-1] + xbis[-2] + h**2*np.exp(xbis[-1])
+F[1:-1] = xbis[2:] - 2*xbis[1:-1] + xbis[:-2] + h**2*np.exp(xbis[1:-1])
+#print(len(x), len(xbis), len(xbis[2:]))
+
+#Jacobienne
+a = (-2 + h**2*np.exp(x[1:-1]))*np.ones(N)
+b = np.ones(N) 
+c = b
+
+J = np.diagflat(a,0) + np.diagflat(b[1:],-1) + np.diagflat(c[:-1],+1)
+Jinv = np.linalg.inv(J)
+
+
+Y[:,0] = y0
+
+#Ne fonctionne pas
+for it in range(1,Nit):
+    Y[:,it] = Y[:,it-1] - np.dot(Jinv, F)
+
+
+plt.plot(x, np.append(np.insert(Y[:,-1],0,0.),0.))
+plt.show
