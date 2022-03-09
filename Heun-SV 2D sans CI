@@ -1,6 +1,6 @@
 #------------------------------------------------------------------------------------------------------------------------
-#Deuxième version 8/03
-#Heun/SV 2D Jupiter/Soleil, rajout des itérations + remaniements variables pour clarté
+#Deuxième version 9/03
+#Heun/SV 2D Jupiter/Soleil, rajout des itérations + remaniements variables pour clarté 
 # Manque conditions initiales !
 #------------------------------------------------------------------------------------------------------------------------
 
@@ -16,7 +16,6 @@ k = 1 #pas de temps
 n_k = 100 #nbr de pas de temps
 mass1 = 1.898*1e27 #masse de Jupiter Kg
 mass2 =1.989*1e30  #masse du Soleil  Kg
-dist = 1   # ?     #Distance Soleil-Jupiter !!variable!!
 position = [1,1]   #coord x,y de Jupiter => Miriade.com ?
 
 def dq(vectq, vectp):
@@ -24,7 +23,7 @@ def dq(vectq, vectp):
     return qdot
     
 def dp(vectq, vectp, dist):
-    pdot = (6.67*1e-11*mass1*mass2)/dist(position)**2
+    pdot = (6.67*1e-11*mass1*mass2)/dist(position)**2  #rajouter un - 
     return pdot
 
 def dist(position):
@@ -37,18 +36,22 @@ p_Heun = np.zeros((2,n_k))
 q_Heun[:,0] = vectq #Condition initiale
 p_Heun[:,0] = vectp #CI
 
-kdq = k*dq(vectq, vectp)
-kdp = k*dp(vectq, vectp, dist)
-
-qtilde = vectq + kdq
-ptilde = vectp + kdp
-
-q_heun2 = k*dq(qtilde, ptilde)
-p_heun2 = k*dp(qtilde, ptilde, dist)
+def F_Heun(vectq, vectp):
+    deriv = []
+    a = k * dq(vectq, vectp)
+    b = k * dp(vectq, vectp, dist)
+    qtilde = vectq + a
+    ptilde = vectp + b
+    a2 = k * dq(qtilde, ptilde)
+    b2 = k * dp(qtilde, ptilde, dist)
+    deriv.append((a+a2)/2)
+    deriv.append((b+b2)/2)
+    return deriv
+    
 
 for i in range(n_k-1):
-    q_Heun[:,i+1] = q_Heun[:,i] + 0.5*kdq + 0.5*q_heun2
-    p_Heun[:,i+1] = p_Heun[:,i] + 0.5*kdp + 0.5*p_heun2
+    q_Heun[:,i+1] = q_Heun[:,i] + F_Heun(q_Heun[:,i], p_Heun[:,i])
+    p_Heun[:,i+1] = p_Heun[:,i] + F_Heun(q_Heun[:,i], p_Heun[:,i])
 
 #Størmer-Verlet-------------------------------
 
@@ -61,6 +64,7 @@ for i in range(n_k-1):
     p_p = psv[:,i] - 0.5 * k * dq(qsv[:,i], psv[:,i])
     qsv[:,i+1] = qsv[:,i] + k * dp(qsv[:,i], p_p, dist)
     psv[:,i+1] = p_p - k * 0.5 *dq(qsv[:,i+1],p_p)
+
 
 
 #------------------------------------------------------------------------------------------------------------------------
