@@ -1,0 +1,59 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+k = 30 #pas de temps en jour => 1 mois
+n_k = 2000 #nbr de pas de temps
+mass1 = 1.898*1e27 #masse de Jupiter Kg
+mass2 =1.989*1e30  #masse du Soleil  Kg
+
+vectq = [5.7892571581640,-1.4530937208658,-0.1023477146383]   # XYZ en a.u.
+vectp = [0.0051715942709*mass1,0.0246545396595*mass1,-0.0000734785932*mass1] 
+
+position = vectq
+
+G = 1.15488171e-4  #Constante de Newton avec a.u. et a.u./day
+
+def dq(vectq, vectp):
+    qdot = vectp/mass1
+    return qdot
+    
+def dp(vectq, vectp, dist):
+    pdot = -(G*mass1*mass2)/dist(position)**2  #rajouter un - 
+    return pdot
+
+def dist(position):
+    distance = np.sqrt(position[0]**2 + position[1]**2 + position[2]**2)
+    return distance
+
+
+#Heun--------------------------------------
+q_Heun = np.zeros((3,n_k)) #3 lignes pour x,y,z
+p_Heun = np.zeros((3,n_k))
+q_Heun[:,0] = vectq #Condition initiale
+p_Heun[:,0] = vectp #CI
+
+def F_Heun(vectq, vectp):
+    deriv = []
+    a = k * dq(vectq, vectp)
+    b = k * dp(vectq, vectp, dist)
+    qtilde = vectq + a
+    ptilde = vectp + b
+    a2 = k * dq(qtilde, ptilde)
+    b2 = k * dp(qtilde, ptilde, dist)
+    deriv.append((a+a2)/2)
+    deriv.append((b+b2)/2)
+    return deriv
+    
+
+for i in range(n_k-1):
+    q_Heun[:,i+1] = q_Heun[:,i] + F_Heun(q_Heun[:,i], p_Heun[:,i])[0]
+    p_Heun[:,i+1] = p_Heun[:,i] + F_Heun(q_Heun[:,i], p_Heun[:,i])[1]
+
+
+Impulsion_carre =  p_Heun[0,:]**2 + p_Heun[1,:]**2 + p_Heun[2,:]**2
+dist_pot = np.sqrt(q_Heun[0,:]**2 + q_Heun[1,:]**2 + q_Heun[2,:]**2)
+Potentiel = (G*mass1*mass2)/dist_pot
+
+Energie = Impulsion_carre/2*mass1 + Potentiel
+plt.plot(dist_pot, np.sqrt(Impulsion_carre)/mass1)
