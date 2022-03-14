@@ -1,11 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-tmax = 500 #ans
+tmax = 50 #ans
 k = 1 #an
 n_k = int(tmax/k)
 
-G = 4434733.101
+#G = 4434733.101
+G = 2.95912208286e-4
 
 mass1 = 0.001
 
@@ -16,13 +17,13 @@ posS = [0.,0.,0.]
 impS = [0.,0.,0.]
 
 
-def dq(param_pos, param_imp):
+def dq(param_pos, param_imp): #Explose dés la 1ère itération
     """
     param_pos = array : [qX1,qY1,qZ1,qX2,qY2,qZ2]
     param_imp = array : [pX1,pY1,pZ1,pX2,pY2,pZ2]
 
     """
-    zq = np.zeros(len(param_pos))
+    zq = np.zeros(6)
     zq[0] = param_imp[0]/1
     zq[1] = param_imp[1]/1
     zq[2] = param_imp[2]/1
@@ -32,24 +33,25 @@ def dq(param_pos, param_imp):
     """
     zq : array des dq/dt longeur 6
     """
+    #print(zq)
     return zq
 
-def dp(param_pos, param_imp):
+def dp(param_pos, param_imp): #On divise par quoi ? Distance XYZ ou distance X ou Y ou Z ?
     """
     idem que dq
     """
     zp = np.zeros(len(param_pos))
-    zp[0] -= (G*1*0.001)/distance(pos1 = [param_pos[0],param_pos[1],param_pos[2]],pos2 =[param_pos[3],param_pos[4],param_pos[5]])**2
-    zp[1] -= (G*1*0.001)/distance(pos1 = [param_pos[0],param_pos[1],param_pos[2]],pos2 =[param_pos[3],param_pos[4],param_pos[5]])**2
-    zp[2] -= (G*1*0.001)/distance(pos1 = [param_pos[0],param_pos[1],param_pos[2]],pos2 =[param_pos[3],param_pos[4],param_pos[5]])**2
-    zp[3] -= (G*1*0.001)/distance(pos1 = [param_pos[0],param_pos[1],param_pos[2]],pos2 =[param_pos[3],param_pos[4],param_pos[5]])**2
-    zp[4] -= (G*1*0.001)/distance(pos1 = [param_pos[0],param_pos[1],param_pos[2]],pos2 =[param_pos[3],param_pos[4],param_pos[5]])**2
-    zp[5] -= (G*1*0.001)/distance(pos1 = [param_pos[0],param_pos[1],param_pos[2]],pos2 =[param_pos[3],param_pos[4],param_pos[5]])**2
+    zp[0] = -(((G*1*0.001)/distance(param_pos[:3],param_pos[3:])**3) * (param_pos[0] - param_pos[3])) - (((G*1*0.001)/distance(param_pos[3:],param_pos[:3])**3) * (param_pos[3] - param_pos[0]))
+    zp[1] = -(((G*1*0.001)/distance(param_pos[:3],param_pos[3:])**3) * (param_pos[1] - param_pos[4])) + (((G*1*0.001)/distance(param_pos[:3],param_pos[3:])**3) * (param_pos[4] - param_pos[1]))
+    zp[2] = -(((G*1*0.001)/distance(param_pos[:3],param_pos[3:])**3) * (param_pos[2] - param_pos[5])) + (((G*1*0.001)/distance(param_pos[:3],param_pos[3:])**3) * (param_pos[5] - param_pos[2]))
+    zp[3] = -(((G*1*0.001)/distance(param_pos[:3],param_pos[3:])**3) * (param_pos[3] - param_pos[0])) + (((G*1*0.001)/distance(param_pos[:3],param_pos[3:])**3) * (param_pos[0] - param_pos[3]) )
+    zp[4] = -(((G*1*0.001)/distance(param_pos[:3],param_pos[3:])**3) * (param_pos[4] - param_pos[1])) + (((G*1*0.001)/distance(param_pos[:3],param_pos[3:])**3) * (param_pos[1] - param_pos[4]) )
+    zp[5] = -(((G*1*0.001)/distance(param_pos[:3],param_pos[3:])**3) * (param_pos[5] - param_pos[2])) + (((G*1*0.001)/distance(param_pos[:3],param_pos[3:])**3) * (param_pos[2] - param_pos[5]) )
     """
     zp : array des dp/dt longueur 6
     """
+    #print(zp)
     return zp
-
 
 def distance(pos1, pos2):
     """
@@ -58,34 +60,29 @@ def distance(pos1, pos2):
     dist = np.sqrt(((pos1[0]-pos2[0])**2)+((pos1[1]-pos2[1])**2)+((pos1[2]-pos2[2])**2))
     return dist
 
-def FQ_Heun(position, impulsion):
+def F_Heun(position, impulsion):
     """
-    position : array [x1 y1 z1 x2 y2 z2]
+    position,impulsion : array [x1 y1 z1 x2 y2 z2]
     """
     q1 = dq(position,impulsion)
+    #print("q1 :",q1)
     p1 = dp(position,impulsion)
     q_tilde = position + q1
+    #print("q_tilde :", q_tilde)
     p_tilde = impulsion + p1
     q2 = dq(q_tilde, p_tilde)
-    return k*0.5*(q1+q2)
-
-def FP_Heun(position, impulsion):
-    """
-    impulsion : array [x1 y1 z1 x2 y2 z2]
-    """
-    q1 = dq(position,impulsion)
-    p1 = dp(position,impulsion)
-    q_tilde = position + q1
-    p_tilde = impulsion + p1
     p2 = dp(q_tilde, p_tilde)
-    return  k*0.5*(p1+p2)
+    return k*0.5*(q1+q2), k*0.5*(p1+p2)
 
 def Heun(q_Heun, p_Heun):
     for i in range(n_k-1):
         pos_start = q_Heun[i]
         imp_start = p_Heun[i]
-        delta_q = FQ_Heun(pos_start,imp_start)
-        delta_p = FP_Heun(pos_start,imp_start)
+        #print("start :",imp_start)
+        #print("start :",pos_start)
+        delta_q, delta_p = F_Heun(pos_start,imp_start)
+        #print("dérivée :",delta_q)
+        #print("dérivée :",delta_p)
         np.shape(delta_q)
         q_Heun[i+1] = pos_start + delta_q
         p_Heun[i+1] = imp_start + delta_p
@@ -100,4 +97,5 @@ p_Heun[0] = np.concatenate(np.array([[0., 0., 0.],[0.0051715942709*mass1,0.02465
 
 resq, resp = Heun(q_Heun, p_Heun)
 
-print(resq[0],resq[-1])
+#print(resq)
+print(resq[:5])
