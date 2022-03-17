@@ -1,20 +1,21 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-tmax = 5000 #ans
-k = 1 #an
+tmax = 5000 * 12 #mois
+k = 1*12 #mois
 n_k = int(tmax/k)
 
 #G = 4434733.101
-G = 2.95912208286e-4
+G = 1.15488171e-4
 
-mass1 = 0.001
+mass1 = 0.000954786104043          #1.898*1e27 #Masse Jupiter
+mass2 = 1                          #1.989*1e30   #Masse Soleil
 
 posJ = [5.7892571581640,-1.4530937208658,-0.1023477146383]   # XYZ en a.u.
 impJ = [0.0051715942709*mass1,0.0246545396595*mass1,-0.0000734785932*mass1] 
 
-posS = [0.,0.,0.]
-impS = [0.,0.,0.]
+posS = [0,0,0]
+impS = [0,0,0]
 
 
 def dq(param_pos, param_imp): #Explose dés la 1ère itération
@@ -24,12 +25,12 @@ def dq(param_pos, param_imp): #Explose dés la 1ère itération
 
     """
     zq = np.zeros(6)
-    zq[0] = param_imp[0]/1
-    zq[1] = param_imp[1]/1
-    zq[2] = param_imp[2]/1
-    zq[3] = param_imp[3]/0.001
-    zq[4] = param_imp[4]/0.001
-    zq[5] = param_imp[5]/0.001
+    zq[0] = param_imp[0]/mass2
+    zq[1] = param_imp[1]/mass2
+    zq[2] = param_imp[2]/mass2
+    zq[3] = param_imp[3]/mass1
+    zq[4] = param_imp[4]/mass1
+    zq[5] = param_imp[5]/mass1
     """
     zq : array des dq/dt longeur 6
     """
@@ -42,32 +43,13 @@ def dp(param_pos, param_imp): #On divise par distance XYZ
     idem que dq
     """
     zp = np.zeros(len(param_pos))
-    #zp[0] = -(((G*1*0.001)/dist_same(param_pos[0],param_pos[3])**3) * (param_pos[0] - param_pos[3])) - (((G*1*0.001)/dist_same(param_pos[3],param_pos[0])**3) * (param_pos[3] - param_pos[0])) #Soleil pdotX
-    zp[0] = -(((G*1*0.001)/distance(param_pos[:3],param_pos[3:])**3) * (param_pos[0] - param_pos[3])) + (((G*1*0.001)/distance(param_pos[3:],param_pos[:3])**3) * (param_pos[3] - param_pos[0]))
-    #print((((G*1*0.001)/distance(param_pos[:3],param_pos[3:])**3) * (param_pos[0] - param_pos[3])), (((G*1*0.001)/distance(param_pos[3:],param_pos[:3])**3) * (param_pos[3] - param_pos[0])))
-    #print()
+    zp[0] = -2*(((G*mass2*mass1)/distance(param_pos[:3],param_pos[3:])**3) * (param_pos[0] - param_pos[3])) 
+    zp[1] = -2*(((G*mass2*mass1)/distance(param_pos[:3],param_pos[3:])**3) * (param_pos[1] - param_pos[4]))
+    zp[2] = -2*(((G*mass2*mass1)/distance(param_pos[:3],param_pos[3:])**3) * (param_pos[2] - param_pos[5]))
+    zp[3] = -2*(((G*mass2*mass1)/distance(param_pos[:3],param_pos[3:])**3) * (param_pos[3] - param_pos[0]))
+    zp[4] = -2*(((G*mass2*mass1)/distance(param_pos[:3],param_pos[3:])**3) * (param_pos[4] - param_pos[1]))
+    zp[5] = -2*(((G*mass2*mass1)/distance(param_pos[:3],param_pos[3:])**3) * (param_pos[5] - param_pos[2]))
     
-    #zp[1] = ((G*1*0.001)/dist_same(param_pos[1],param_pos[4])**3) * (param_pos[1] - param_pos[4])  #Soleil pdotY
-    #zp[1] = -(((G*1*0.001)/dist_same(param_pos[1],param_pos[4])**3) * (param_pos[1] - param_pos[4])) + (((G*1*0.001)/dist_same(param_pos[4],param_pos[1])**3) * (param_pos[4] - param_pos[1]))
-    zp[1] = -(((G*1*0.001)/distance(param_pos[:3],param_pos[3:])**3) * (param_pos[1] - param_pos[4])) + (((G*1*0.001)/distance(param_pos[:3],param_pos[3:])**3) * (param_pos[4] - param_pos[1]))
-    #print((param_pos[1] - param_pos[4]),(param_pos[4] - param_pos[1]))
-    #zp[2] = ((G*1*0.001)/dist_same(param_pos[2],param_pos[5])**3) * (param_pos[2] - param_pos[5])  #Soleil pdotZ
-    #zp[2] = -(((G*1*0.001)/dist_same(param_pos[2],param_pos[5])**3) * (param_pos[2] - param_pos[5])) + (((G*1*0.001)/dist_same(param_pos[5],param_pos[2])**3) * (param_pos[5] - param_pos[2]))
-    zp[2] = -(((G*1*0.001)/distance(param_pos[:3],param_pos[3:])**3) * (param_pos[2] - param_pos[5])) + (((G*1*0.001)/distance(param_pos[:3],param_pos[3:])**3) * (param_pos[5] - param_pos[2]))
-    
-    #zp[3] = ((G*1*0.001)/dist_same(param_pos[3],param_pos[0])**3) * (param_pos[3] - param_pos[0])  #Jupiter pdotX
-    #zp[3] = -(((G*1*0.001)/dist_same(param_pos[3],param_pos[0])**3) * (param_pos[3] - param_pos[0])) + (((G*1*0.001)/dist_same(param_pos[0],param_pos[3])**3) * (param_pos[0] - param_pos[3]) )
-    zp[3] = -(((G*1*0.001)/distance(param_pos[:3],param_pos[3:])**3) * (param_pos[3] - param_pos[0])) + (((G*1*0.001)/distance(param_pos[:3],param_pos[3:])**3) * (param_pos[0] - param_pos[3]) )
-
-    #zp[4] = ((G*1*0.001)/dist_same(param_pos[4],param_pos[1])**3) * (param_pos[4] - param_pos[1])  #Jupiter pdotY
-    #zp[4] = -(((G*1*0.001)/dist_same(param_pos[4],param_pos[1])**3) * (param_pos[4] - param_pos[1])) + (((G*1*0.001)/dist_same(param_pos[1],param_pos[4])**3) * (param_pos[1] - param_pos[4]) )
-    zp[4] = -(((G*1*0.001)/distance(param_pos[:3],param_pos[3:])**3) * (param_pos[4] - param_pos[1])) + (((G*1*0.001)/distance(param_pos[:3],param_pos[3:])**3) * (param_pos[1] - param_pos[4]) )
-
-    #zp[5] = ((G*1*0.001)/dist_same(param_pos[5],param_pos[2])**3) * (param_pos[5] - param_pos[2])  #Jupiter pdotZ
-    #zp[5] = -(((G*1*0.001)/dist_same(param_pos[5],param_pos[2])**3) * (param_pos[5] - param_pos[2])) + (((G*1*0.001)/dist_same(param_pos[2],param_pos[5])**3) * (param_pos[2] - param_pos[5]) )
-    zp[5] = -(((G*1*0.001)/distance(param_pos[:3],param_pos[3:])**3) * (param_pos[5] - param_pos[2])) + (((G*1*0.001)/distance(param_pos[:3],param_pos[3:])**3) * (param_pos[2] - param_pos[5]) )
-
-    #print(dist_same(param_pos[0],param_pos[3]))
     """
     zp : array des dp/dt longueur 6
     """
@@ -80,13 +62,6 @@ def distance(pos1, pos2):
     """
     dist = np.sqrt(((pos1[0]-pos2[0])**2)+((pos1[1]-pos2[1])**2)+((pos1[2]-pos2[2])**2))
     return dist
-
-def dist_same(coord1, coord2):
-    """
-    coord1/2 : coordonnées d'un seul axe  => coord1/2 = float
-    return distance par rapport à un seul axe
-    """
-    return np.sqrt((coord1-coord2)**2)
 
 def F_Heun(position, impulsion):
     """
@@ -104,70 +79,72 @@ def F_Heun(position, impulsion):
 
 def Heun(q_Heun, p_Heun):
     for i in range(n_k-1):
-        pos_start = q_Heun[i]
-        imp_start = p_Heun[i]
-        #print("start :",imp_start)
-        #print("start :",pos_start)
-        delta_q, delta_p = F_Heun(pos_start,imp_start)
+        delta_q, delta_p = F_Heun(q_Heun[i],p_Heun[i])
         #print("dérivée :",delta_q)
         #print("dérivée :",delta_p)
-        q_Heun[i+1] = pos_start + delta_q
-        p_Heun[i+1] = imp_start + delta_p
+        q_Heun[i+1] = q_Heun[i] + delta_q
+        p_Heun[i+1] = p_Heun[i] + delta_p
     return q_Heun, p_Heun
 
-def Energy(result_q, result_p): #Probleme : retourne un array (6,0)
+def Energy(result_q, result_p): 
     energies = np.zeros(n_k)
     for i in range(n_k):       
         #print(np.shape(result_q[0]), np.shape(result_q[i,0]))
-        T_Sun = (result_p[i,0]+result_p[i,1]+result_p[i,2])**2/1
-        T_Jup = (result_p[i,3]+result_p[i,4]+result_p[i,5])**2/0.001
-        V_Sun = G*0.001*1/distance(result_q[i,:3],result_q[i,3:])
+        #T_Sun = (result_p[i,0]+result_p[i,1]+result_p[i,2])**2/1
+        T_Sun = (result_p[i,0]**2 + result_p[i,1]**2 + result_p[i,2]**2)/2*mass2
+        T_Jup = (result_p[i,3]**2 + result_p[i,4]**2 + result_p[i,5]**2)/2*mass1
+        V_Sun = G*mass1*mass2/distance(result_q[i,:3],result_q[i,3:])
         V_Jup = V_Sun
-        #print(type((T_Sun + T_Jup + V_Sun + V_Jup)))
-        energies[i] = T_Sun + T_Jup + V_Sun + V_Jup
+        #print(T_Jup)
+        energies[i] = T_Jup - V_Jup +T_Sun #+ V_Sun
     return energies
-    
+
 def SV(q_SV,p_SV):
     for i in range(n_k-1):
-        pos_start = q_SV[i]
-        imp_start = p_SV[i]
-        p_mid = imp_start + 0.5 * k * dp(pos_start, imp_start)
-        q_SV[i+1] = pos_start + k * dq(pos_start, p_mid)
+        p_mid = p_SV[i] + 0.5 * k * dp(q_SV[i], p_SV[i])
+        q_SV[i+1] = q_SV[i] + k * dq(q_SV[i], p_mid)
         p_SV[i+1] = p_mid + 0.5 * k * dp(q_SV[i+1],p_mid)
-        return q_SV,p_SV
+    return q_SV,p_SV
+
+def methode(name):
+    if name == "H":
+        resq, resp = Heun(q_Heun, p_Heun)
+    elif name == "SV":
+        resq, resp = SV(q_SV,p_SV)
+    return resq, resp
 #--------------------------------------------------------------------------
 
 q_SV = np.zeros((n_k, 2 * 3))  #1st col : XSun, 2nd : YSun, 3rd : ZSun,...., 6th : ZJup
 p_SV = np.zeros((n_k, 2 * 3))
 
+q_SV[0] = np.concatenate(np.array([[0, 0, 0],[5.7892571581640,-1.4530937208658,-0.1023477146383]]))
+p_SV[0] = np.concatenate(np.array([[0, 0, 0],[0.0051715942709*mass1,0.0246545396595*mass1,-0.0000734785932*mass1]]))
+
+
 q_Heun = np.zeros((n_k, 2 * 3))  #1st col : XSun, 2nd : YSun, 3rd : ZSun,...., 6th : ZJup
 p_Heun = np.zeros((n_k, 2 * 3))
 
-q_Heun[0] = np.concatenate(np.array([[0., 0., 0.],[5.7892571581640,-1.4530937208658,-0.1023477146383]]))
-p_Heun[0] = np.concatenate(np.array([[0., 0., 0.],[0.0051715942709*mass1,0.0246545396595*mass1,-0.0000734785932*mass1]]))
+q_Heun[0] = np.concatenate(np.array([[0, 0, 0],[5.7892571581640,-1.4530937208658,-0.1023477146383]]))
+p_Heun[0] = np.concatenate(np.array([[0, 0, 0],[0.0051715942709*mass1,0.0246545396595*mass1,-0.0000734785932*mass1]]))
 
-"""
+#"""
 #Heun-------------------------------------------------
 resq, resp = Heun(q_Heun, p_Heun)
 E = Energy(resq,resp)
-jsp = []
-for j in range(n_k):
-    jsp.append(j)
     
-plt.plot(jsp,E)
+#plt.plot(range(n_k),E)
+#plt.plot(resq[3:],resp[3:]/mass1)
 plt.show()
 #-----------------------------------------------------
 """
-
-#SV------------------------------------------------- #"divide by zero" avec distance()
+#SV-------------------------------------------------
 finalq, finalp = SV(q_SV,p_SV)
-E1 = Energy(q_SV, p_SV)
-jsp1 = []
-for m in range(n_k):
-    jsp1.append(m)
-plt.plot(jsp1,E1)
+E1 = Energy(finalq, finalp)
+
+plt.plot(range(n_k),E1)
+#plt.plot(q_SV[3:],p_SV[3:]/mass1)
 plt.show()
 #---------------------------------------------------
-#print(np.shape(resq))
-#print(resq)
-#plt.plot(resq, resp/mass1)
+"""
+#print(finalq)
+print(resq[0])
