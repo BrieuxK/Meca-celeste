@@ -1,23 +1,23 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-tmax = 1000 * 365 #jours
-k = 30 #jours
+tmax = 5000 * 12 #mois
+k = 1 #mois
 n_k = int(tmax/k)
 
+#G = 4434733.101
+G = 1.15488171e-4
 
-#G = 1.15488171e-4
-G = 2.959e-4
-
-mass1 = 0.000954786104043          #1.898*1e27   #Masse Jupiter
+mass1 = 0.000954786104043          #1.898*1e27 #Masse Jupiter
 mass2 = 1                          #1.989*1e30   #Masse Soleil
 
+masses = [1,0.000954786104043]
 
 
 def dq(param_pos, param_imp): #Explose dés la 1ère itération
     """
-    param_pos = array : [qX1,qY1,qZ1,qX2,qY2,qZ2] 3premiers : Soleil, 3derniers Jupiter
-    param_imp = array : [pX1,pY1,pZ1,pX2,pY2,pZ2] 3premiers : Soleil, 3derniers Jupiter
+    param_pos = array : [qX1,qY1,qZ1,qX2,qY2,qZ2]
+    param_imp = array : [pX1,pY1,pZ1,pX2,pY2,pZ2]
 
     """
     zq = np.zeros(6)
@@ -28,27 +28,23 @@ def dq(param_pos, param_imp): #Explose dés la 1ère itération
     zq[4] = param_imp[4]/mass1
     zq[5] = param_imp[5]/mass1
     """
-    zq : array des dq/dt longeur 6 
+    zq : array des dq/dt longeur 6
     """
     #print(zq)
     return zq
 
 
 def dp(param_pos, param_imp): #On divise par distance XYZ
-    #Froce sur Soleil ou sur Jupiter ?
     """
-    param_pos = array : [qX1,qY1,qZ1,qX2,qY2,qZ2] 
-    param_imp = array : [pX1,pY1,pZ1,pX2,pY2,pZ2]
+    idem que dq
     """
     zp = np.zeros(len(param_pos))
-    #force soleil sur jupiter
-    zp[0] = -(((G*mass2*mass1)/distance(param_pos[:3],param_pos[3:])**3) * (param_pos[0] - param_pos[3])) 
-    zp[1] = -(((G*mass2*mass1)/distance(param_pos[:3],param_pos[3:])**3) * (param_pos[1] - param_pos[4]))
-    zp[2] = -(((G*mass2*mass1)/distance(param_pos[:3],param_pos[3:])**3) * (param_pos[2] - param_pos[5]))
-    #force jupiter sur Soleil
-    zp[3] = -(((G*mass2*mass1)/distance(param_pos[:3],param_pos[3:])**3) * (param_pos[3] - param_pos[0]))
-    zp[4] = -(((G*mass2*mass1)/distance(param_pos[:3],param_pos[3:])**3) * (param_pos[4] - param_pos[1]))
-    zp[5] = -(((G*mass2*mass1)/distance(param_pos[:3],param_pos[3:])**3) * (param_pos[5] - param_pos[2]))
+    zp[0] = -2*(((G*mass2*mass1)/distance(param_pos[:3],param_pos[3:])**3) * (param_pos[0] - param_pos[3])) 
+    zp[1] = -2*(((G*mass2*mass1)/distance(param_pos[:3],param_pos[3:])**3) * (param_pos[1] - param_pos[4]))
+    zp[2] = -2*(((G*mass2*mass1)/distance(param_pos[:3],param_pos[3:])**3) * (param_pos[2] - param_pos[5]))
+    zp[3] = -2*(((G*mass2*mass1)/distance(param_pos[:3],param_pos[3:])**3) * (param_pos[3] - param_pos[0]))
+    zp[4] = -2*(((G*mass2*mass1)/distance(param_pos[:3],param_pos[3:])**3) * (param_pos[4] - param_pos[1]))
+    zp[5] = -2*(((G*mass2*mass1)/distance(param_pos[:3],param_pos[3:])**3) * (param_pos[5] - param_pos[2]))
     
     """
     zp : array des dp/dt longueur 6
@@ -67,22 +63,17 @@ def F_Heun(position, impulsion):
     """
     position,impulsion : array [x1 y1 z1 x2 y2 z2]
     """
-    q1 = k * dq(position,impulsion)
+    q1 = dq(position,impulsion)
     #print("q1 :",q1)
-    p1 = k * dp(position,impulsion)
+    p1 = dp(position,impulsion)
     q_tilde = position + q1
     #print("q_tilde :", q_tilde)
     p_tilde = impulsion + p1
-    q2 = k * dq(q_tilde, p_tilde)
-    p2 = k * dp(q_tilde, p_tilde)
-    return 0.5*(q1+q2), 0.5*(p1+p2)
+    q2 = dq(q_tilde, p_tilde)
+    p2 = dp(q_tilde, p_tilde)
+    return k*0.5*(q1+q2), k*0.5*(p1+p2)
 
 def Heun(q_Heun, p_Heun):
-    """
-    q/p_Heun : matrice (n_k,6)
-    CHaque colonne représente une donnée 
-    Chaque ligne représente un pas de temps
-    """
     for i in range(n_k-1):
         delta_q, delta_p = F_Heun(q_Heun[i],p_Heun[i])
         #print("dérivée :",delta_q)
@@ -94,13 +85,23 @@ def Heun(q_Heun, p_Heun):
 def Energy(result_q, result_p): 
     energies = np.zeros(n_k)
     for i in range(n_k):       
+        #print(np.shape(result_q[0]), np.shape(result_q[i,0]))
+        #T_Sun = (result_p[i,0]+result_p[i,1]+result_p[i,2])**2/1
         T_Sun = (result_p[i,0]**2 + result_p[i,1]**2 + result_p[i,2]**2)/2*mass2
         T_Jup = (result_p[i,3]**2 + result_p[i,4]**2 + result_p[i,5]**2)/2*mass1
         V = G*mass1*mass2/distance(result_q[i,:3],result_q[i,3:])
+        #print(T_Jup)
         energies[i] = (T_Jup + T_Sun) - V 
     return energies
 
-def angular_m(result_q, result_p, coord): #Moment angulaire
+def SV(q_SV,p_SV):
+    for i in range(n_k-1):
+        p_mid = p_SV[i] + 0.5 * k * dp(q_SV[i], p_SV[i])
+        q_SV[i+1] = q_SV[i] + k * dq(q_SV[i], p_mid)
+        p_SV[i+1] = p_mid + 0.5 * k * dp(q_SV[i+1],p_mid)
+    return q_SV,p_SV
+
+def angular_m(result_q, result_p, coord):
     """
     result_q/_p => (n_k,6) : matrice de solutions finales
     coord => 0 pour x, 1 pour y, 2 pour z
@@ -112,7 +113,7 @@ def angular_m(result_q, result_p, coord): #Moment angulaire
     """
     return ang_m
 
-def cm(result_q, coord):  #Centre de masse
+def cm(result_q, coord):  
     """
     coord => 0 pour x, 1 pour y, 2 pour z
     """
@@ -124,35 +125,55 @@ def cm(result_q, coord):  #Centre de masse
     return cmass/(1 + 0.000954786104043)
 #--------------------------------------------------------------------------
 
+q_SV = np.zeros((n_k, 2 * 3))  #1st col : XSun, 2nd : YSun, 3rd : ZSun,...., 6th : ZJup
+p_SV = np.zeros((n_k, 2 * 3))
+
+q_SV[0] = np.array([0, 0, 0,4.8320528131341,-1.1900491790446,-0.1031658265828])
+p_SV[0] = np.array([0, 0, 0,0.0017167836330*mass1,0.0076897387172*mass1,-0.0000703506472*mass1])
+
 q_Heun = np.zeros((n_k, 2 * 3))  #1st col : XSun, 2nd : YSun, 3rd : ZSun,...., 6th : ZJup
 p_Heun = np.zeros((n_k, 2 * 3))
 
-#COnditions initiales dans la 1ère ligne de chaque matrice
-q_Heun[0] = np.concatenate(np.array([[0, 0, 0],[5.7892571581640,-1.4530937208658,-0.1023477146383]]))
-p_Heun[0] = np.concatenate(np.array([[0, 0, 0],[0.0051715942709*mass1,0.0246545396595*mass1,-0.0000734785932*mass1]]))
+q_Heun[0] = np.array([0, 0, 0,4.8320528131341,-1.1900491790446,-0.1031658265828])
+p_Heun[0] = np.array([0, 0, 0,0.0017167836330*mass1,0.0076897387172*mass1,-0.0000703506472*mass1])
 
-
+#"""
 #Heun-------------------------------------------------
-resq, resp = Heun(q_Heun, p_Heun) # resq = matrice (n_k,6) des positions déterminées par le schéma de Heun
-                                  # resp = matrice (n_k,6) des impulsions déterminées par le schéma de Heun                            
-#print(resq[0])
-print(dq(q_Heun[0],p_Heun[0]))
-
+#resq, resp = Heun(q_Heun, p_Heun)
 #E = Energy(resq,resp)
-#plt.plot(range(n_k),E)
-#plt.plot(resq[3:],resp[3:]/mass1)
-#-----------------------------------------------------
 
+#plt.plot(range(n_k),E)
+
+#-----------------------------------------------------
+"""
+#SV-------------------------------------------------
+finalq, finalp = SV(q_SV,p_SV)
+E1 = Energy(finalq, finalp)
+
+plt.plot(range(n_k),E1, color = "Orange")
+plt.title("Energie SV")
+plt.show()
+"""
+
+"""
+x, y, z = angular_m(finalq, finalp, 0), angular_m(finalq, finalp, 1), angular_m(finalq, finalp, 2)
+tot = np.sqrt(x**2 + y**2 + z**2)
+plt.plot(range(n_k), tot)
+plt.title("Moment agulaire SV")
+plt.show()
+"""
+#---------------------------------------------------
+
+#print(finalq)
+#print(resq[0])
+##################################################################
+"""
 fig = plt.figure(figsize=plt.figaspect(0.5))
 
 ax = fig.add_subplot(1, 2, 1, projection='3d')
 
-ax.plot3D(resq[:,3],resq[:,4],resq[:,5], color = "Red") #Jupiter
-ax.plot3D(resq[:,0],resq[:,1],resq[:,2], color = "Blue") #Soleil
-plt.show()
-"""
-x, y, z = angular_m(resq, resp, 0), angular_m(resq, resp, 1), angular_m(resq, resp, 2)
-tot = np.sqrt(x**2 + y**2 + z**2)
-plt.plot(range(n_k), tot)
+ax.plot3D(finalq[:,3] - cm(finalq,0),finalq[:,4] - cm(finalq,1),finalq[:,5] - cm(finalq,2), color = "Red") #Jupiter
+ax.plot3D(finalq[:,0] - cm(finalq,0),finalq[:,1] - cm(finalq,1),finalq[:,2] - cm(finalq,2), color = "Blue") #Soleil
+
 plt.show()
 """
