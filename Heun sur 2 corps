@@ -133,11 +133,11 @@ resq, resp = Heun(q_Heun, p_Heun)
 fig = plt.figure(figsize=plt.figaspect(0.5))
 ax = fig.add_subplot(1, 2, 1, projection='3d')
 
-#ax.plot3D(resq[:,3], resq[:,4], resq[:,5])
+#ax.plot3D(resq[:,3], resq[:,4], resq[:,5])  #Sans soustraire le centre de masse => moins précis
 #ax.plot3D(resq[:,0], resq[:,1], resq[:,2])
 
-ax.plot3D(resq[:,3] - cm(resq,0), resq[:,4] - cm(resq,1), resq[:,5] - cm(resq,2))
+ax.plot3D(resq[:,3] - cm(resq,0), resq[:,4] - cm(resq,1), resq[:,5] - cm(resq,2)) #En soustrayant le centre de masse => plus précis
 ax.plot3D(resq[:,0] - cm(resq,0), resq[:,1] - cm(resq,1), resq[:,2] - cm(resq,2))
 
-plt.title("Heun2 corps")
+plt.title("Heun 2 corps")
 plt.show()
