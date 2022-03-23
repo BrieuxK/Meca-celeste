@@ -41,17 +41,17 @@ def dq(param_pos, param_imp): #Explose dés la 1ère itération
 def dp(param_pos, param_imp): #On divise par distance XYZ
     zp = np.zeros(len(param_pos))
     #forces subies par jupiter
-    zp[0] = -2*(((G*masses[0]*masses[1])/distance(param_pos[:3],param_pos[3:6])**3) * (param_pos[0] - param_pos[3])) - 2*(((G*masses[1]*masses[2])/distance(param_pos[3:6],param_pos[:-3])**3) * (param_pos[3] - param_pos[6])) 
-    zp[1] = -2*(((G*masses[0]*masses[1])/distance(param_pos[:3],param_pos[3:6])**3) * (param_pos[1] - param_pos[4])) - 2*(((G*masses[1]*masses[2])/distance(param_pos[3:6],param_pos[:-3])**3) * (param_pos[4] - param_pos[7]))
-    zp[2] = -2*(((G*masses[0]*masses[1])/distance(param_pos[:3],param_pos[3:6])**3) * (param_pos[2] - param_pos[5])) - 2*(((G*masses[1]*masses[2])/distance(param_pos[3:6],param_pos[:-3])**3) * (param_pos[5] - param_pos[8]))
+    zp[0] = -2*(((G*masses[0]*masses[1])/distance(param_pos[:3],param_pos[3:6])**3) * (param_pos[0] - param_pos[3])) - 2*(((G*masses[1]*masses[2])/distance(param_pos[3:6],param_pos[6:])**3) * (param_pos[3] - param_pos[6])) 
+    zp[1] = -2*(((G*masses[0]*masses[1])/distance(param_pos[:3],param_pos[3:6])**3) * (param_pos[1] - param_pos[4])) - 2*(((G*masses[1]*masses[2])/distance(param_pos[3:6],param_pos[6:])**3) * (param_pos[4] - param_pos[7]))
+    zp[2] = -2*(((G*masses[0]*masses[1])/distance(param_pos[:3],param_pos[3:6])**3) * (param_pos[2] - param_pos[5])) - 2*(((G*masses[1]*masses[2])/distance(param_pos[3:6],param_pos[6:])**3) * (param_pos[5] - param_pos[8]))
     #forces subies par Soleil
-    zp[3] = -2*(((G*masses[0]*masses[1])/distance(param_pos[:3],param_pos[3:6])**3) * (param_pos[3] - param_pos[0])) - 2*(((G*masses[0]*masses[2])/distance(param_pos[:3],param_pos[:-3])**3) * (param_pos[0] - param_pos[6]))
-    zp[4] = -2*(((G*masses[0]*masses[1])/distance(param_pos[:3],param_pos[3:6])**3) * (param_pos[4] - param_pos[1])) - 2*(((G*masses[0]*masses[2])/distance(param_pos[:3],param_pos[:-3])**3) * (param_pos[1] - param_pos[7]))
-    zp[5] = -2*(((G*masses[0]*masses[1])/distance(param_pos[:3],param_pos[3:6])**3) * (param_pos[5] - param_pos[2])) - 2*(((G*masses[0]*masses[2])/distance(param_pos[:3],param_pos[:-3])**3) * (param_pos[2] - param_pos[8]))
+    zp[3] = -2*(((G*masses[0]*masses[1])/distance(param_pos[:3],param_pos[3:6])**3) * (param_pos[3] - param_pos[0])) - 2*(((G*masses[0]*masses[2])/distance(param_pos[:3],param_pos[6:])**3) * (param_pos[0] - param_pos[6]))
+    zp[4] = -2*(((G*masses[0]*masses[1])/distance(param_pos[:3],param_pos[3:6])**3) * (param_pos[4] - param_pos[1])) - 2*(((G*masses[0]*masses[2])/distance(param_pos[:3],param_pos[6:])**3) * (param_pos[1] - param_pos[7]))
+    zp[5] = -2*(((G*masses[0]*masses[1])/distance(param_pos[:3],param_pos[3:6])**3) * (param_pos[5] - param_pos[2])) - 2*(((G*masses[0]*masses[2])/distance(param_pos[:3],param_pos[6:])**3) * (param_pos[2] - param_pos[8]))
     
-    zp[6] = -2*(((G*masses[2]*masses[1])/distance(param_pos[:-3],param_pos[3:6])**3) * (param_pos[3] - param_pos[6])) - 2*(((G*masses[0]*masses[2])/distance(param_pos[:3],param_pos[:-3])**3) * (param_pos[6] - param_pos[0]))
-    zp[7] = -2*(((G*masses[2]*masses[1])/distance(param_pos[:-3],param_pos[3:6])**3) * (param_pos[4] - param_pos[7])) - 2*(((G*masses[0]*masses[2])/distance(param_pos[:3],param_pos[:-3])**3) * (param_pos[7] - param_pos[1]))
-    zp[8] = -2*(((G*masses[2]*masses[1])/distance(param_pos[:-3],param_pos[3:6])**3) * (param_pos[5] - param_pos[8])) - 2*(((G*masses[0]*masses[2])/distance(param_pos[:3],param_pos[:-3])**3) * (param_pos[8] - param_pos[2]))
+    zp[6] = -2*(((G*masses[2]*masses[1])/distance(param_pos[6:],param_pos[3:6])**3) * (param_pos[3] - param_pos[6])) - 2*(((G*masses[0]*masses[2])/distance(param_pos[:3],param_pos[6:])**3) * (param_pos[6] - param_pos[0]))
+    zp[7] = -2*(((G*masses[2]*masses[1])/distance(param_pos[6:],param_pos[3:6])**3) * (param_pos[4] - param_pos[7])) - 2*(((G*masses[0]*masses[2])/distance(param_pos[:3],param_pos[6:])**3) * (param_pos[7] - param_pos[1]))
+    zp[8] = -2*(((G*masses[2]*masses[1])/distance(param_pos[6:],param_pos[3:6])**3) * (param_pos[5] - param_pos[8])) - 2*(((G*masses[0]*masses[2])/distance(param_pos[:3],param_pos[6:])**3) * (param_pos[8] - param_pos[2]))
     
     """
     zp : array des dp/dt longueur 9
