@@ -144,10 +144,10 @@ finalq, finalp = SV(q_SV,p_SV)
 fig = plt.figure(figsize=plt.figaspect(0.5))
 ax = fig.add_subplot(1, 2, 1, projection='3d')
 
-#ax.plot3D(finalq[:,3],finalq[:,4],finalq[:,5]) 
+#ax.plot3D(finalq[:,3],finalq[:,4],finalq[:,5]) #Sans soustraire le centre de masse => moins précis
 #ax.plot3D(finalq[:,0],finalq[:,1],finalq[:,2]) 
 
-ax.plot3D(finalq[:,3] - cm(finalq,0),finalq[:,4] - cm(finalq,1),finalq[:,5] - cm(finalq,2)) 
+ax.plot3D(finalq[:,3] - cm(finalq,0),finalq[:,4] - cm(finalq,1),finalq[:,5] - cm(finalq,2)) #En soustrayant le centre de masse => plus précis
 ax.plot3D(finalq[:,0] - cm(finalq,0),finalq[:,1] - cm(finalq,1),finalq[:,2] - cm(finalq,2)) 
 plt.title("SV 2 corps")
 plt.show()
