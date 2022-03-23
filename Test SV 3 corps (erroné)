@@ -1,6 +1,4 @@
-#"RuntimeWarning: divide by zero encountered" Dans la fonction dp()
-#Erreur pour chaque zp[]
-#C'est très probablement la fonction distance() qui renvoie une valeur nulle
+#Ca plot, mais c'est moche
 import numpy as np
 import matplotlib.pyplot as plt
 
