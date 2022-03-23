@@ -1,0 +1,143 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+tmax = 5000 * 12 #mois
+k = 6 #mois
+n_k = int(tmax/k)
+
+#G = 4434733.101
+G = 1.15488171e-4
+
+mass1 = 0.000954786104043          #1.898*1e27 #Masse Jupiter
+mass2 = 1                          #1.989*1e30   #Masse Soleil
+
+masses = [1,0.000954786104043]
+
+
+def dq(param_pos, param_imp): #Explose dés la 1ère itération
+    """
+    param_pos = array : [qX1,qY1,qZ1,qX2,qY2,qZ2]
+    param_imp = array : [pX1,pY1,pZ1,pX2,pY2,pZ2]
+
+    """
+    zq = np.zeros(6)
+    zq[0] = param_imp[0]/mass2
+    zq[1] = param_imp[1]/mass2
+    zq[2] = param_imp[2]/mass2
+    zq[3] = param_imp[3]/mass1
+    zq[4] = param_imp[4]/mass1
+    zq[5] = param_imp[5]/mass1
+    """
+    zq : array des dq/dt longeur 6
+    """
+    #print(zq)
+    return zq
+
+
+def dp(param_pos, param_imp): #On divise par distance XYZ
+    """
+    idem que dq
+    """
+    zp = np.zeros(len(param_pos))
+    zp[0] = -2*(((G*mass2*mass1)/distance(param_pos[:3],param_pos[3:])**3) * (param_pos[0] - param_pos[3])) 
+    zp[1] = -2*(((G*mass2*mass1)/distance(param_pos[:3],param_pos[3:])**3) * (param_pos[1] - param_pos[4]))
+    zp[2] = -2*(((G*mass2*mass1)/distance(param_pos[:3],param_pos[3:])**3) * (param_pos[2] - param_pos[5]))
+    zp[3] = -2*(((G*mass2*mass1)/distance(param_pos[:3],param_pos[3:])**3) * (param_pos[3] - param_pos[0]))
+    zp[4] = -2*(((G*mass2*mass1)/distance(param_pos[:3],param_pos[3:])**3) * (param_pos[4] - param_pos[1]))
+    zp[5] = -2*(((G*mass2*mass1)/distance(param_pos[:3],param_pos[3:])**3) * (param_pos[5] - param_pos[2]))
+    
+    """
+    zp : array des dp/dt longueur 6
+    """
+    #print(zp)
+    return zp
+
+def distance(pos1, pos2):
+    """
+    pos1,pos2 = [X,Y,Z]
+    """
+    dist = np.sqrt(((pos1[0]-pos2[0])**2)+((pos1[1]-pos2[1])**2)+((pos1[2]-pos2[2])**2))
+    return dist
+
+def F_Heun(position, impulsion):
+    """
+    position,impulsion : array [x1 y1 z1 x2 y2 z2]
+    """
+    q1 = dq(position,impulsion)
+    #print("q1 :",q1)
+    p1 = dp(position,impulsion)
+    q_tilde = position + q1
+    #print("q_tilde :", q_tilde)
+    p_tilde = impulsion + p1
+    q2 = dq(q_tilde, p_tilde)
+    p2 = dp(q_tilde, p_tilde)
+    return k*0.5*(q1+q2), k*0.5*(p1+p2)
+
+def Heun(q_Heun, p_Heun):
+    for i in range(n_k-1):
+        delta_q, delta_p = F_Heun(q_Heun[i],p_Heun[i])
+        #print("dérivée :",delta_q)
+        #print("dérivée :",delta_p)
+        q_Heun[i+1] = q_Heun[i] + delta_q
+        p_Heun[i+1] = p_Heun[i] + delta_p
+    return q_Heun, p_Heun
+
+def Energy(result_q, result_p): 
+    energies = np.zeros(n_k)
+    for i in range(n_k):       
+        #print(np.shape(result_q[0]), np.shape(result_q[i,0]))
+        #T_Sun = (result_p[i,0]+result_p[i,1]+result_p[i,2])**2/1
+        T_Sun = (result_p[i,0]**2 + result_p[i,1]**2 + result_p[i,2]**2)/2*mass2
+        T_Jup = (result_p[i,3]**2 + result_p[i,4]**2 + result_p[i,5]**2)/2*mass1
+        V = G*mass1*mass2/distance(result_q[i,:3],result_q[i,3:])
+        #print(T_Jup)
+        energies[i] = (T_Jup + T_Sun) - V 
+    return energies
+
+
+def angular_m(result_q, result_p, coord):
+    """
+    result_q/_p => (n_k,6) : matrice de solutions finales
+    coord => 0 pour x, 1 pour y, 2 pour z
+    """
+    ang_m = np.zeros(n_k)
+    ang_m = result_q[:,0 + coord] * result_p[:,0 + coord] + result_q[:,3 + coord] * result_p[:,3 + coord]
+    """
+    return : moment angulaire par rapport à une seule coordonnée
+    """
+    return ang_m
+
+def cm(result_q, coord):  
+    """
+    coord => 0 pour x, 1 pour y, 2 pour z
+    """
+    cmass = np.zeros(n_k)
+    cmass = 1 * result_q[:,0 + coord] + 0.000954786104043 * result_q[:,3 + coord]
+    """
+    return : centre de masse par rapport à une seule coordonnée
+    """
+    return cmass/(1 + 0.000954786104043)
+#--------------------------------------------------------------------------
+
+
+q_Heun = np.zeros((n_k, 2 * 3))  #1st col : XSun, 2nd : YSun, 3rd : ZSun,...., 6th : ZJup
+p_Heun = np.zeros((n_k, 2 * 3))
+
+q_Heun[0] = np.array([0, 0, 0,4.8320528131341,-1.1900491790446,-0.1031658265828])
+p_Heun[0] = np.array([0, 0, 0,0.0017167836330*mass1,0.0076897387172*mass1,-0.0000703506472*mass1])
+
+
+#Heun-------------------------------------------------
+resq, resp = Heun(q_Heun, p_Heun)
+
+fig = plt.figure(figsize=plt.figaspect(0.5))
+ax = fig.add_subplot(1, 2, 1, projection='3d')
+
+#ax.plot3D(resq[:,3], resq[:,4], resq[:,5])
+#ax.plot3D(resq[:,0], resq[:,1], resq[:,2])
+
+ax.plot3D(resq[:,3] - cm(resq,0), resq[:,4] - cm(resq,1), resq[:,5] - cm(resq,2))
+ax.plot3D(resq[:,0] - cm(resq,0), resq[:,1] - cm(resq,1), resq[:,2] - cm(resq,2))
+
+plt.title("Heun2 corps")
+plt.show()
