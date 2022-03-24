@@ -1,0 +1,60 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+L = 2*np.pi
+
+N = 32
+h = 2*np.pi/N
+x = np.linspace(0, 2*np.pi-h, N)
+k = np.arange(-N/2, N/2)
+a = (1j*2*np.pi*k/L)
+u = np.exp(np.sin(3*x))
+error = np.fft.ifft(np.fft.ifftshift(a*np.fft.fftshift(np.fft.fft(u)))) - 3*np.exp(np.sin(3*x))*np.cos(3*x)
+print(len(error))
+sum32 = 0
+for i in range(len(error)):
+    rms = error[i]**2
+    sum32 += rms
+
+a = sum32/N
+err_RMS32 = np.sqrt(a)
+print(err_RMS32)    
+
+    
+N = 64
+h = 2*np.pi/N
+x = np.linspace(0, 2*np.pi-h, N)
+k = np.arange(-N/2, N/2)
+a = (1j*2*np.pi*k/L)
+u = np.exp(np.sin(3*x))
+error = np.fft.ifft(np.fft.ifftshift(a*np.fft.fftshift(np.fft.fft(u)))) - 3*np.exp(np.sin(3*x))*np.cos(3*x)
+print(len(error))
+sum64 = 0
+for i in range(len(error)):
+    rms = error[i]**2
+    sum64 += rms
+
+b = sum64/N
+err_RMS64 = np.sqrt(b)
+print(err_RMS64)
+  
+  
+N = 128
+h = 2*np.pi/N
+x = np.linspace(0, 2*np.pi-h, N)
+k = np.arange(-N/2, N/2)
+a = (1j*2*np.pi*k/L)
+u = np.exp(np.sin(3*x))
+error = np.fft.ifft(np.fft.ifftshift(a*np.fft.fftshift(np.fft.fft(u)))) - 3*np.exp(np.sin(3*x))*np.cos(3*x)
+print(len(error))
+sum128 = 0
+for i in range(len(error)):
+    rms = error[i]**2
+    sum128 += rms
+    
+c = sum128/N
+err_RMS128 = np.sqrt(c)
+print(err_RMS128)
+
+plt.plot([32,64,128],[err_RMS32,err_RMS64,err_RMS128])
+plt.show()
