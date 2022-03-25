@@ -1,9 +1,8 @@
-#Ca plot, mais c'est moche
 import numpy as np
 import matplotlib.pyplot as plt
 
 tmax = 5000 * 12 #mois
-k = 6 #mois
+k = 30 #mois
 n_k = int(tmax/k)
 
 
@@ -40,18 +39,18 @@ def dq(param_pos, param_imp): #Explose dés la 1ère itération
 
 def dp(param_pos, param_imp): #On divise par distance XYZ
     zp = np.zeros(len(param_pos))
-    #forces subies par jupiter
-    zp[0] = -2*(((G*masses[0]*masses[1])/distance(param_pos[:3],param_pos[3:6])**3) * (param_pos[0] - param_pos[3])) - 2*(((G*masses[1]*masses[2])/distance(param_pos[3:6],param_pos[6:])**3) * (param_pos[3] - param_pos[6])) 
-    zp[1] = -2*(((G*masses[0]*masses[1])/distance(param_pos[:3],param_pos[3:6])**3) * (param_pos[1] - param_pos[4])) - 2*(((G*masses[1]*masses[2])/distance(param_pos[3:6],param_pos[6:])**3) * (param_pos[4] - param_pos[7]))
-    zp[2] = -2*(((G*masses[0]*masses[1])/distance(param_pos[:3],param_pos[3:6])**3) * (param_pos[2] - param_pos[5])) - 2*(((G*masses[1]*masses[2])/distance(param_pos[3:6],param_pos[6:])**3) * (param_pos[5] - param_pos[8]))
-    #forces subies par Soleil
-    zp[3] = -2*(((G*masses[0]*masses[1])/distance(param_pos[:3],param_pos[3:6])**3) * (param_pos[3] - param_pos[0])) - 2*(((G*masses[0]*masses[2])/distance(param_pos[:3],param_pos[6:])**3) * (param_pos[0] - param_pos[6]))
-    zp[4] = -2*(((G*masses[0]*masses[1])/distance(param_pos[:3],param_pos[3:6])**3) * (param_pos[4] - param_pos[1])) - 2*(((G*masses[0]*masses[2])/distance(param_pos[:3],param_pos[6:])**3) * (param_pos[1] - param_pos[7]))
-    zp[5] = -2*(((G*masses[0]*masses[1])/distance(param_pos[:3],param_pos[3:6])**3) * (param_pos[5] - param_pos[2])) - 2*(((G*masses[0]*masses[2])/distance(param_pos[:3],param_pos[6:])**3) * (param_pos[2] - param_pos[8]))
     
-    zp[6] = -2*(((G*masses[2]*masses[1])/distance(param_pos[6:],param_pos[3:6])**3) * (param_pos[3] - param_pos[6])) - 2*(((G*masses[0]*masses[2])/distance(param_pos[:3],param_pos[6:])**3) * (param_pos[6] - param_pos[0]))
-    zp[7] = -2*(((G*masses[2]*masses[1])/distance(param_pos[6:],param_pos[3:6])**3) * (param_pos[4] - param_pos[7])) - 2*(((G*masses[0]*masses[2])/distance(param_pos[:3],param_pos[6:])**3) * (param_pos[7] - param_pos[1]))
-    zp[8] = -2*(((G*masses[2]*masses[1])/distance(param_pos[6:],param_pos[3:6])**3) * (param_pos[5] - param_pos[8])) - 2*(((G*masses[0]*masses[2])/distance(param_pos[:3],param_pos[6:])**3) * (param_pos[8] - param_pos[2]))
+    zp[0] = -2*(((G*masses[0]*masses[1])/distance(param_pos[:3],param_pos[3:6])**3) * (param_pos[0] - param_pos[3])) - 2*(((G*masses[0]*masses[2])/distance(param_pos[:3],param_pos[6:])**3) * (param_pos[0] - param_pos[6]))#Marqueur 
+    zp[1] = -2*(((G*masses[0]*masses[1])/distance(param_pos[:3],param_pos[3:6])**3) * (param_pos[1] - param_pos[4])) - 2*(((G*masses[0]*masses[2])/distance(param_pos[:3],param_pos[6:])**3) * (param_pos[1] - param_pos[7]))
+    zp[2] = -2*(((G*masses[0]*masses[1])/distance(param_pos[:3],param_pos[3:6])**3) * (param_pos[2] - param_pos[5])) - 2*(((G*masses[0]*masses[2])/distance(param_pos[:3],param_pos[6:])**3) * (param_pos[2] - param_pos[8]))
+    
+    zp[3] = -2*(((G*masses[0]*masses[1])/distance(param_pos[:3],param_pos[3:6])**3) * (param_pos[3] - param_pos[0])) - 2*(((G*masses[1]*masses[2])/distance(param_pos[3:6],param_pos[6:])**3) * (param_pos[3] - param_pos[6]))
+    zp[4] = -2*(((G*masses[0]*masses[1])/distance(param_pos[:3],param_pos[3:6])**3) * (param_pos[4] - param_pos[1])) - 2*(((G*masses[1]*masses[2])/distance(param_pos[3:6],param_pos[6:])**3) * (param_pos[4] - param_pos[7]))
+    zp[5] = -2*(((G*masses[0]*masses[1])/distance(param_pos[:3],param_pos[3:6])**3) * (param_pos[5] - param_pos[2])) - 2*(((G*masses[1]*masses[2])/distance(param_pos[3:6],param_pos[6:])**3) * (param_pos[5] - param_pos[8]))
+    
+    zp[6] = -2*(((G*masses[2]*masses[0])/distance(param_pos[6:],param_pos[:3])**3) * (param_pos[6] - param_pos[0])) - 2*(((G*masses[1]*masses[2])/distance(param_pos[3:6],param_pos[6:])**3) * (param_pos[6] - param_pos[3]))
+    zp[7] = -2*(((G*masses[2]*masses[0])/distance(param_pos[6:],param_pos[:3])**3) * (param_pos[7] - param_pos[1])) - 2*(((G*masses[1]*masses[2])/distance(param_pos[3:6],param_pos[6:])**3) * (param_pos[7] - param_pos[4]))
+    zp[8] = -2*(((G*masses[2]*masses[0])/distance(param_pos[6:],param_pos[:3])**3) * (param_pos[8] - param_pos[2])) - 2*(((G*masses[1]*masses[2])/distance(param_pos[3:6],param_pos[6:])**3) * (param_pos[8] - param_pos[5]))
     
     """
     zp : array des dp/dt longueur 9
@@ -88,8 +87,6 @@ def Heun(q_Heun, p_Heun):
     """
     for i in range(n_k-1):
         delta_q, delta_p = F_Heun(q_Heun[i],p_Heun[i])
-        #print("dérivée :",delta_q)
-        #print("dérivée :",delta_p)
         q_Heun[i+1] = q_Heun[i] + delta_q
         p_Heun[i+1] = p_Heun[i] + delta_p
     return q_Heun, p_Heun
@@ -127,45 +124,31 @@ def cm(result_q, coord):  #Centre de masse
     coord => 0 pour x, 1 pour y, 2 pour z
     """
     cmass = np.zeros(n_k)
-    cmass = 1 * result_q[:,0 + coord] + 0.000954786104043 * result_q[:,3 + coord]
+    cmass = 1 * result_q[:,0 + coord] + 0.000954786104043 * result_q[:,3 + coord] + 0.0002857214681 * result_q[:,6 + coord]
     """
     return : centre de masse par rapport à une seule coordonnée
     """
-    return cmass/(1 + 0.000954786104043)
+    return cmass/(1 + 0.000954786104043 + 0.0002857214681)
 #--------------------------------------------------------------------------
 q_SV = np.zeros((n_k, len(masses) * 3))  #1st col : XSun, 2nd : YSun, 3rd : ZSun,...., 6th : ZJup
 p_SV = np.zeros((n_k, len(masses) * 3))
 
 q_SV[0] = np.array([0, 0, 0,4.8320528131341,-1.1900491790446,-0.1031658265828,7.2530549979978,-6.7394166060155,-0.1714717076894])
-p_SV[0] = np.array([0, 0, 0,0.0017167836330*masses[1],0.0076897387172*masses[1],-0.0000703506472*masses[1],0.0034894004389**masses[2],0.0040828028757*masses[2],-0.0002098149920*masses[2]])
+p_SV[0] = np.array([0, 0, 0,0.0017167836330*masses[1],0.0076897387172*masses[1],-0.0000703506472*masses[1],0.0034894004389*masses[2],0.0040828028757*masses[2],-0.0002098149920*masses[2]])
 
-"""
-q_Heun = np.zeros((n_k, 2 * 3))  #1st col : XSun, 2nd : YSun, 3rd : ZSun,...., 6th : ZJup
-p_Heun = np.zeros((n_k, 2 * 3))
+
+q_Heun = np.zeros((n_k, len(masses) * 3))  #1st col : XSun, 2nd : YSun, 3rd : ZSun,...., 6th : ZJup
+p_Heun = np.zeros((n_k, len(masses) * 3))
 
 #COnditions initiales dans la 1ère ligne de chaque matrice
-q_Heun[0] = np.array([0, 0, 0,4.8320528131341,-1.1900491790446,-0.1031658265828])
-p_Heun[0] = np.array([0, 0, 0,0.0017167836330*mass1,0.0076897387172*mass1,-0.0000703506472*mass1])
-"""
+q_Heun[0] = np.array([0, 0, 0,4.8320528131341,-1.1900491790446,-0.1031658265828,7.2530549979978,-6.7394166060155,-0.1714717076894])
+p_Heun[0] = np.array([0, 0, 0,0.0017167836330*masses[1],0.0076897387172*masses[1],-0.0000703506472*masses[1],0.0034894004389*masses[2],0.0040828028757*masses[2],-0.0002098149920*masses[2]])
 
-#Heun-------------------------------------------------
-#resq, resp = Heun(q_Heun, p_Heun) # resq = matrice (n_k,6) des positions déterminées par le schéma de Heun
-                                  # resp = matrice (n_k,6) des impulsions déterminées par le schéma de Heun                            
-#print(resq)
-#print(dq(q_Heun[0],p_Heun[0]))
 
-#E = Energy(resq,resp)
-#plt.plot(range(n_k),E)
-#plt.plot(resq[3:],resp[3:]/mass1)
-#SV---------------------------------------------------
-finalq, finalp = SV(q_SV,p_SV)
-#E1 = Energy(finalq, finalp)
-"""
-plt.plot(range(n_k),E1, color = "Orange")
-plt.title("Energie SV")
-plt.show()
+#finalq, finalp = SV(q_SV,p_SV)
+finalq, finalp = Heun(q_Heun, p_Heun)
 
-"""
+
 fig = plt.figure(figsize=plt.figaspect(0.5))
 
 ax = fig.add_subplot(1, 2, 1, projection='3d')
@@ -174,15 +157,10 @@ ax.plot3D(finalq[:,6],finalq[:,7],finalq[:,8], color = "Pink") #Saturne
 ax.plot3D(finalq[:,3],finalq[:,4],finalq[:,5], color = "Red") #Jupiter
 ax.plot3D(finalq[:,0],finalq[:,1],finalq[:,2], color = "Blue") #Soleil
 plt.show()
+
 """
 ax.plot3D(finalq[:,6] - cm(finalq,0),finalq[:,7] - cm(finalq,1),finalq[:,8] - cm(finalq,2), color = "Pink") #Saturne
 ax.plot3D(finalq[:,3] - cm(finalq,0),finalq[:,4] - cm(finalq,1),finalq[:,5] - cm(finalq,2), color = "Red") #Jupiter
 ax.plot3D(finalq[:,0] - cm(finalq,0),finalq[:,1] - cm(finalq,1),finalq[:,2] - cm(finalq,2), color = "Blue") #Soleil
-
-"""
-"""
-x, y, z = angular_m(resq, resp, 0), angular_m(resq, resp, 1), angular_m(resq, resp, 2)
-tot = np.sqrt(x**2 + y**2 + z**2)
-plt.plot(range(n_k), tot)
 plt.show()
 """
