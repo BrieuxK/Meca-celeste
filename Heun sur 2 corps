@@ -64,10 +64,8 @@ def F_Heun(position, impulsion):
     position,impulsion : array [x1 y1 z1 x2 y2 z2]
     """
     q1 = dq(position,impulsion)
-    #print("q1 :",q1)
     p1 = dp(position,impulsion)
     q_tilde = position + q1
-    #print("q_tilde :", q_tilde)
     p_tilde = impulsion + p1
     q2 = dq(q_tilde, p_tilde)
     p2 = dp(q_tilde, p_tilde)
@@ -76,8 +74,6 @@ def F_Heun(position, impulsion):
 def Heun(q_Heun, p_Heun):
     for i in range(n_k-1):
         delta_q, delta_p = F_Heun(q_Heun[i],p_Heun[i])
-        #print("dérivée :",delta_q)
-        #print("dérivée :",delta_p)
         q_Heun[i+1] = q_Heun[i] + delta_q
         p_Heun[i+1] = p_Heun[i] + delta_p
     return q_Heun, p_Heun
