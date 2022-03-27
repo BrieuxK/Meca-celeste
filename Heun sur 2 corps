@@ -14,7 +14,7 @@ mass2 = 1                          #1.989*1e30   #Masse Soleil
 masses = [1,0.000954786104043]
 
 
-def dq(param_pos, param_imp): #Explose dés la 1ère itération
+def dq(param_pos, param_imp):
     """
     param_pos = array : [qX1,qY1,qZ1,qX2,qY2,qZ2]
     param_imp = array : [pX1,pY1,pZ1,pX2,pY2,pZ2]
@@ -34,7 +34,7 @@ def dq(param_pos, param_imp): #Explose dés la 1ère itération
     return zq
 
 
-def dp(param_pos, param_imp): #On divise par distance XYZ
+def dp(param_pos, param_imp):
     """
     idem que dq
     """
