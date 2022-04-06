@@ -199,23 +199,28 @@ y= np.concatenate([finalq[:,4], finalq[:,7]])
 z= np.concatenate([finalq[:,5], finalq[:,8]])
 
 
-points, = ax.plot(x, y, z, '*')
+points, = ax.plot(x, y, z, 'o', c = 'b') #Ca doit être Jupiter celle là
+dots, = ax.plot(x, y, z, 'x', c = 'r')  #Peut être Saturne
 txt = fig.suptitle('')
+plt.grid(False)
 
-def update_points(num, x, y, z, points):
-    txt.set_text('num={:d}'.format(num)) # for debug purposes
-    # calculate the new sets of coordinates here. The resulting arrays should have the same shape
-    # as the original x,y,z
-    new_x = np.array([x[num], x[num+600]])
-    new_y = np.array([y[num], y[num+600]])
-    new_z = np.array([z[num], z[num+600]])
+def update_points(num, x, y, z, points, dots):
+    #txt.set_text('num={:d}'.format(num))
 
-    # update properties
+    new_x = x[num]
+    new_y = y[num]
+    new_z = z[num]
+    
+    new_x1 = x[num+600]
+    new_y1 = y[num+600]
+    new_z1 = z[num+600]
+
     points.set_data(new_x,new_y)
     points.set_3d_properties(new_z, 'z')
+    dots.set_data(new_x1,new_y1)
+    dots.set_3d_properties(new_z1, 'z')
 
-    # return modified artists
-    return points,txt
+    return points,dots,txt
 
 ax.set_xlim3d([-10.0, 10.0])
 
@@ -223,7 +228,8 @@ ax.set_ylim3d([-10.0, 10.0])
 
 ax.set_zlim3d([-1, 1])
 
-ax.plot(0, 0, marker = 'o', markersize=15, color="yellow")
-ani=animation.FuncAnimation(fig, update_points, frames=200, fargs=(x, y, z, points))
 
-plt.show()
+ax.plot(0, 0, marker = 'o', markersize=15, color="yellow")
+ani=animation.FuncAnimation(fig, update_points, frames=200, fargs=(x, y, z, points, dots))
+
+plt.show()############
